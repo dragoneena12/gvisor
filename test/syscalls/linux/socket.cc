@@ -86,9 +86,12 @@ TEST(SocketTest, UnixSocketStat) {
   EXPECT_EQ(statbuf.st_mode, S_IFSOCK | sock_perm & ~mask);
 
   // Timestamps should be equal and non-zero.
-  EXPECT_NE(statbuf.st_atime, 0);
-  EXPECT_EQ(statbuf.st_atime, statbuf.st_mtime);
-  EXPECT_EQ(statbuf.st_atime, statbuf.st_ctime);
+  // TODO(b/158882152): Sockets currently don't implement timestamps.
+  if (!IsRunningOnGvisor()) {
+    EXPECT_NE(statbuf.st_atime, 0);
+    EXPECT_EQ(statbuf.st_atime, statbuf.st_mtime);
+    EXPECT_EQ(statbuf.st_atime, statbuf.st_ctime);
+  }
 }
 
 TEST(SocketTest, UnixConnectNeedsWritePerm) {
